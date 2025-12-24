@@ -8,17 +8,44 @@ import Header from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Mail, Lock, Eye, EyeOff } from "lucide-react"
+import { login } from "@/services/auth.service";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { tr } from "date-fns/locale"
+import { set } from "date-fns"
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState("")
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Sign in with:", { email, password })
-  }
+    console.log("Sign in with:", { identifier, password })
+  } 
 
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!identifier || !password) {
+      toast.error("Vui lòng nhập email / số điện thoại và mật khẩu");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const data = await login({ identifier, password });
+      localStorage.setItem("token", data.token);
+      toast.success("Đăng nhập thành công!");
+      router.push("/");
+    } catch (err: any) {
+      toast.error(err.message || "Đăng nhập thất bại");
+    } finally {
+      setLoading(false);
+    } 
+  }
   return (
     <main className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
       <Header />
@@ -37,16 +64,16 @@ export default function SignIn() {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSignIn} className="space-y-5">
+            <form onSubmit={handleLogin} className="space-y-5">
               {/* Email */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground">Email</label>
                 <div className="relative">
-                  <Input
-                    type="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                 <Input
+                    type="text"
+                    placeholder="Email hoặc số điện thoại"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
                     className="pl-10 pr-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                   />
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary" />

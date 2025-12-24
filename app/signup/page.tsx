@@ -1,15 +1,18 @@
 "use client"
-
+import VerifyOtpModal from "@/components/auth/VerifyOtpModal";
 import type React from "react"
-
+import { register } from "@/services/auth.service"
 import { useState } from "react"
 import Link from "next/link"
 import Header from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Mail, Lock, User, Eye, EyeOff, CheckCircle } from "lucide-react"
+import toast from "react-hot-toast"
 
 export default function SignUp() {
+  const [showVerifyOtp, setShowVerifyOtp] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -25,10 +28,49 @@ export default function SignUp() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSignUp = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Sign up with:", formData)
+const handleSignUp = async (e: React.FormEvent) => {
+  e.preventDefault()
+
+  if (!agreeTerms) {
+    toast.error("❗ Vui lòng đồng ý Điều khoản & Chính sách bảo mật")
+    return
   }
+
+  if (formData.password !== formData.confirmPassword) {
+    toast.error("❌ Mật khẩu xác nhận không khớp")
+    return
+  }
+
+  const loadingToast = toast.loading("⏳ Đang tạo tài khoản...")
+
+  try {
+    await register({
+      accountName: formData.fullName,
+      email: formData.email,
+      password: formData.password,
+    })
+
+      toast.success(
+      "🎉 Đăng ký thành công! Vui lòng kiểm tra email để nhập OTP",
+      { id: loadingToast }
+    );
+
+    // ✅ LƯU EMAIL + MỞ POPUP OTP
+    setRegisteredEmail(formData.email);
+
+    setTimeout(() => {
+      setShowVerifyOtp(true);
+    }, 1500);
+
+  } catch (err: any) {
+    toast.error(
+      err?.message || "❌ Đăng ký thất bại, vui lòng thử lại",
+      { id: loadingToast }
+    )
+  }
+}
+
+
 
   const passwordStrength = formData.password.length >= 8 ? "strong" : formData.password.length >= 6 ? "medium" : "weak"
   const passwordStrengthColor =
@@ -230,6 +272,12 @@ export default function SignUp() {
           </div>
         </div>
       </div>
+      <VerifyOtpModal
+  open={showVerifyOtp}
+  email={registeredEmail}
+  onClose={() => setShowVerifyOtp(false)}
+/>
+
     </main>
   )
 }

@@ -6,6 +6,15 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "https://localhost:63731/api/:path*",
+      },
+    ]
+  },
 }
 
 export default nextConfig
