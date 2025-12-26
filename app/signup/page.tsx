@@ -9,18 +9,21 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Mail, Lock, User, Eye, EyeOff, CheckCircle } from "lucide-react"
 import toast from "react-hot-toast"
+import { Phone } from "lucide-react";
 
 export default function SignUp() {
   const [showVerifyOtp, setShowVerifyOtp] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [formData, setFormData] = useState({
+ const [formData, setFormData] = useState({
     fullName: "",
     email: "",
+    phoneNumber: "",
     password: "",
     confirmPassword: "",
-  })
+});
+
   const [agreeTerms, setAgreeTerms] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,15 +34,25 @@ export default function SignUp() {
 const handleSignUp = async (e: React.FormEvent) => {
   e.preventDefault()
 
-  if (!agreeTerms) {
-    toast.error("❗ Vui lòng đồng ý Điều khoản & Chính sách bảo mật")
-    return
-  }
+if (!formData.fullName.trim()) {
+  toast.error("❗ Vui lòng nhập họ và tên");
+  return;
+}
 
-  if (formData.password !== formData.confirmPassword) {
-    toast.error("❌ Mật khẩu xác nhận không khớp")
-    return
-  }
+if (!formData.email.trim()) {
+  toast.error("❗ Vui lòng nhập email");
+  return;
+}
+
+if (!formData.phoneNumber.trim()) {
+  toast.error("❗ Vui lòng nhập số điện thoại");
+  return;
+}
+
+if (formData.password !== formData.confirmPassword) {
+  toast.error("❌ Mật khẩu xác nhận không khớp");
+  return;
+}
 
   const loadingToast = toast.loading("⏳ Đang tạo tài khoản...")
 
@@ -47,8 +60,10 @@ const handleSignUp = async (e: React.FormEvent) => {
     await register({
       accountName: formData.fullName,
       email: formData.email,
+      phoneNumber: formData.phoneNumber,
       password: formData.password,
-    })
+    });
+
 
       toast.success(
       "🎉 Đăng ký thành công! Vui lòng kiểm tra email để nhập OTP",
@@ -126,6 +141,23 @@ const handleSignUp = async (e: React.FormEvent) => {
                     className="pl-10 pr-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                   />
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary" />
+                </div>
+              </div>
+{/* Phone Number */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground">
+                  Số điện thoại
+                </label>
+                <div className="relative">
+                  <Input
+                    type="tel"
+                    name="phoneNumber"
+                    placeholder="0123456789"
+                    value={formData.phoneNumber}
+                    onChange={handleChange}
+                    className="pl-10 pr-4 py-3"
+                  />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
                 </div>
               </div>
 

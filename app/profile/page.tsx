@@ -289,7 +289,7 @@ export default function Profile() {
 
         {/* Orders Tab */}
         {activeTab === "orders" && (
-          <div className="space-y-4">
+          <div className="space-y-4"> 
             {orders.map((order) => (
               <Card key={order.id} className="border-0 shadow-lg">
                 <CardContent className="p-6">

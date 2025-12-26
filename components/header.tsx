@@ -1,15 +1,32 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Menu, X, Search, User, LogOut, ShoppingCart } from "lucide-react"
+import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
+import { isLoggedIn as checkLoggedIn, logout } from "@/services/auth.service"
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const router = useRouter()
+
+  // ✅ CHECK LOGIN KHI LOAD HEADER
+  useEffect(() => {
+    setIsLoggedIn(checkLoggedIn())
+  }, [])
+
+  const handleLogout = () => {
+    logout()
+    setIsLoggedIn(false)
+    setIsProfileOpen(false)
+    toast.success("👋 Đã đăng xuất")
+    router.push("/signin")
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-md border-b-2 border-primary/20">
@@ -83,30 +100,21 @@ export default function Header() {
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-border py-2 z-50">
                   {isLoggedIn ? (
                     <>
+                      {/* Hồ sơ */}
                       <Link
                         href="/profile"
-                        className="block px-4 py-2 text-foreground hover:bg-primary/10 transition-colors"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-foreground hover:bg-primary/10 transition-colors"
                       >
-                        Hồ sơ của tôi
+                        <User className="w-4 h-4 text-primary" />
+                        Hồ sơ
                       </Link>
-                      <Link
-                        href="/orders"
-                        className="block px-4 py-2 text-foreground hover:bg-primary/10 transition-colors"
-                      >
-                        Đơn hàng của tôi
-                      </Link>
-                      <Link
-                        href="/wishlist"
-                        className="block px-4 py-2 text-foreground hover:bg-primary/10 transition-colors"
-                      >
-                        Yêu thích
-                      </Link>
+
                       <hr className="my-2" />
+
+                      {/* Đăng xuất */}
                       <button
-                        onClick={() => {
-                          setIsLoggedIn(false)
-                          setIsProfileOpen(false)
-                        }}
+                        onClick={handleLogout}
                         className="w-full text-left px-4 py-2 text-foreground hover:bg-destructive/10 transition-colors flex items-center gap-2"
                       >
                         <LogOut className="w-4 h-4" />
@@ -115,14 +123,19 @@ export default function Header() {
                     </>
                   ) : (
                     <>
+                      {/* Đăng nhập */}
                       <Link
                         href="/signin"
+                        onClick={() => setIsProfileOpen(false)}
                         className="block px-4 py-2 text-foreground hover:bg-primary/10 transition-colors font-medium"
                       >
                         Đăng nhập
                       </Link>
+
+                      {/* Đăng ký */}
                       <Link
                         href="/signup"
+                        onClick={() => setIsProfileOpen(false)}
                         className="block px-4 py-2 text-foreground hover:bg-primary/10 transition-colors font-medium"
                       >
                         Đăng ký
@@ -131,6 +144,7 @@ export default function Header() {
                   )}
                 </div>
               )}
+
             </div>
           </div>
 
