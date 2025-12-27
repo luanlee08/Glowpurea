@@ -37,7 +37,7 @@ export default function SignIn() {
       setLoading(true);
 
       const data = await login({ identifier, password });
-      localStorage.setItem("access_token", data.accessToken);
+      localStorage.setItem("access_token", data.token);
       toast.success("Đăng nhập thành công!");
       router.refresh();
       router.push("/");

@@ -35,22 +35,22 @@ const handleSignUp = async (e: React.FormEvent) => {
   e.preventDefault()
 
 if (!formData.fullName.trim()) {
-  toast.error("❗ Vui lòng nhập họ và tên");
+  toast.error(" Vui lòng nhập họ và tên");
   return;
 }
 
 if (!formData.email.trim()) {
-  toast.error("❗ Vui lòng nhập email");
+  toast.error("Vui lòng nhập email");
   return;
 }
 
 if (!formData.phoneNumber.trim()) {
-  toast.error("❗ Vui lòng nhập số điện thoại");
+  toast.error(" Vui lòng nhập số điện thoại");
   return;
 }
 
 if (formData.password !== formData.confirmPassword) {
-  toast.error("❌ Mật khẩu xác nhận không khớp");
+  toast.error(" Mật khẩu xác nhận không khớp");
   return;
 }
 

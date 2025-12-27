@@ -9,10 +9,10 @@ import { useEffect } from "react";
 
 export default function Home() {
 
-    useEffect(() => {
+  useEffect(() => {
     console.log("API URL =", process.env.NEXT_PUBLIC_API_URL);
   }, []);
-  
+
   const products = [
     {
       id: 1,
@@ -174,15 +174,21 @@ export default function Home() {
               />
             </div>
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">Về Natural Lip Balm</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">
+                Về Glowpurea
+              </h2>
               <p className="text-lg text-foreground/80 mb-4">
-                Chúng tôi tin rằng chăm sóc da phải bắt đầu từ những nguyên liệu tự nhiên và an toàn. Mỗi sản phẩm của
-                chúng tôi được tạo ra với sự tỉ mỉ và yêu thương.
+                Glowpurea là một dự án được xây dựng bởi một nhóm bạn trẻ có chung niềm yêu thích
+                với thiên nhiên và lối sống lành mạnh. Chúng tôi mong muốn tạo ra những sản phẩm
+                chăm sóc môi an toàn, lành tính và dễ sử dụng trong cuộc sống hằng ngày.
               </p>
+
               <p className="text-lg text-foreground/80 mb-6">
-                Sử dụng chỉ những nguyên liệu hữu cơ tốt nhất, không chứa paraben, sulfate hay hóa chất nhân tạo. Tất cả
-                sản phẩm đều được kiểm tra chất lượng kỹ lưỡng.
+                Mỗi sản phẩm của Glowpurea được phát triển từ các nguyên liệu thiên nhiên được chọn lọc,
+                không chứa thành phần gây hại và hướng đến sự cân bằng giữa hiệu quả sử dụng, cảm giác
+                dễ chịu và trách nhiệm với môi trường.
               </p>
+
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm">

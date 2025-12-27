@@ -52,26 +52,30 @@ export default function About() {
 
   const timeline = [
     {
-      year: "2020",
+      year: "2025",
       title: "Khởi đầu",
-      description: "Natural Lip Balm được thành lập với mục tiêu tạo ra những sản phẩm chăm sóc môi tự nhiên",
+      description:
+        "Glowpurea chính thức được thành lập bởi một nhóm bạn trẻ có chung niềm đam mê với thiên nhiên và lối sống lành mạnh. Dự án ra đời với mong muốn phát triển các dòng son dưỡng môi từ nguyên liệu thiên nhiên, an toàn, lành tính và phù hợp cho việc sử dụng hằng ngày.",
     },
     {
-      year: "2021",
-      title: "Phát triển",
-      description: "Phát triển 6 loại son dưỡng khác nhau với các hương vị tự nhiên độc đáo",
+      year: "2026",
+      title: "Hoàn thiện sản phẩm",
+      description:
+        "Nhóm tập trung nghiên cứu và thử nghiệm nhiều công thức khác nhau để hoàn thiện sản phẩm. Những thỏi son dưỡng đầu tiên của Glowpurea được ra mắt với thành phần thiên nhiên chọn lọc, kết cấu dịu nhẹ và thiết kế tối giản, thân thiện với người dùng.",
     },
     {
-      year: "2022",
-      title: "Mở rộng",
-      description: "Mở rộng thị trường, bắt đầu bán online và tại các cửa hàng bán lẻ",
+      year: "2027",
+      title: "Mở rộng kênh bán",
+      description:
+        "Glowpurea bắt đầu phân phối sản phẩm thông qua các kênh bán hàng trực tuyến, từng bước tiếp cận khách hàng trên nhiều nền tảng và mở rộng độ nhận diện thương hiệu trên toàn quốc.",
     },
     {
-      year: "2024",
-      title: "Hiện tại",
-      description: "Phục vụ hơn 500 khách hàng hài lòng và tiếp tục phát triển các sản phẩm mới",
+      year: "Hiện tại",
+      title: "Phát triển bền vững",
+      description:
+        "Glowpurea không ngừng cải tiến chất lượng sản phẩm, đa dạng hóa dòng son dưỡng và hướng đến xây dựng một thương hiệu mỹ phẩm thiên nhiên uy tín, gắn liền với giá trị bền vững và sự an tâm cho người sử dụng.",
     },
-  ]
+  ];
 
   return (
     <main className="min-h-screen bg-background">
@@ -85,14 +89,16 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-6">
             <h1 className="text-5xl md:text-6xl font-bold text-foreground text-balance">
-              Về{" "}
+              Câu chuyện của{" "}
               <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Natural Lip Balm
+                Glowpurea
               </span>
             </h1>
+
             <p className="text-xl text-foreground/70 max-w-2xl mx-auto text-pretty">
-              Chúng tôi tin rằng chăm sóc da phải bắt đầu từ những nguyên liệu tự nhiên và an toàn. Hành trình của chúng
-              tôi bắt đầu từ một đam mê đơn giản: tạo ra những sản phẩm tốt cho sức khỏe của bạn.
+              Chúng tôi tin rằng vẻ đẹp bền vững bắt đầu từ sự an toàn và tinh khiết.
+              Glowpurea ra đời với mong muốn mang đến những sản phẩm chăm sóc môi
+              được tạo nên từ nguyên liệu thiên nhiên, nhẹ nhàng cho làn da và an tâm cho sức khỏe.
             </p>
           </div>
         </div>
@@ -104,7 +110,7 @@ export default function About() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <img
-                src="/handmade-natural-lip-balm-making.jpg"
+                src="/son-duong-thien-nhien.png"
                 alt="Quá trình làm son dưỡng thủ công"
                 className="rounded-2xl shadow-xl"
               />
@@ -114,25 +120,35 @@ export default function About() {
                 <span className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-4">
                   Câu chuyện của chúng tôi
                 </span>
-                <h2 className="text-4xl font-bold text-foreground mb-4">Từ Đam Mê Đến Sản Phẩm</h2>
+                <h2 className="text-4xl font-bold text-foreground mb-4">
+                  Từ Đam Mê Đến Glowpurea
+                </h2>
               </div>
+
               <p className="text-lg text-foreground/70 leading-relaxed">
-                Natural Lip Balm được thành lập bởi Nguyễn Thị Hương, một người yêu thích thiên nhiên và chăm sóc sức
-                khỏe. Cô ấy nhận thấy rằng hầu hết các sản phẩm chăm sóc môi trên thị trường đều chứa hóa chất độc hại
-                và quyết định tạo ra một giải pháp tự nhiên.
+                Glowpurea là một dự án được khởi xướng bởi một nhóm bạn trẻ có chung niềm yêu thích
+                với thiên nhiên và lối sống lành mạnh. Chúng tôi tin rằng việc chăm sóc bản thân
+                không nhất thiết phải phức tạp, mà nên bắt đầu từ những điều đơn giản, an toàn và
+                gần gũi với tự nhiên.
               </p>
+
               <p className="text-lg text-foreground/70 leading-relaxed">
-                Sau nhiều tháng nghiên cứu và thử nghiệm, chúng tôi đã phát triển công thức độc đáo kết hợp các nguyên
-                liệu tự nhiên tốt nhất. Mỗi sản phẩm được làm thủ công với sự chăm sóc và tình yêu, đảm bảo chất lượng
-                cao nhất.
+                Xuất phát từ mong muốn tạo ra một sản phẩm dưỡng môi có nguồn gốc thiên nhiên,
+                nhóm đã cùng nhau nghiên cứu, thử nghiệm và hoàn thiện công thức son dưỡng đầu
+                tiên của Glowpurea. Mỗi sản phẩm đều được chăm chút tỉ mỉ, cân bằng giữa hiệu quả
+                dưỡng ẩm, cảm giác dễ chịu và sự an tâm cho người sử dụng.
               </p>
+             
               <div className="flex gap-4 pt-4">
-                <Button className="bg-primary hover:bg-primary/90">Mua Ngay</Button>
+                <Button className="bg-primary hover:bg-primary/90">
+                  Khám Phá Sản Phẩm
+                </Button>
                 <Button variant="outline" className="bg-transparent">
                   Liên Hệ
                 </Button>
               </div>
             </div>
+
           </div>
         </div>
       </section>
@@ -200,7 +216,7 @@ export default function About() {
       </section>
 
       {/* Team */}
-      <section className="py-20 md:py-32 bg-accent/5">
+      {/* <section className="py-20 md:py-32 bg-accent/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <span className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-4">
@@ -230,7 +246,7 @@ export default function About() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
       <section className="py-20 md:py-32 bg-gradient-to-r from-primary/10 to-secondary/10">

@@ -14,14 +14,32 @@ export default function Header() {
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const router = useRouter()
+  const [avatar, setAvatar] = useState<string | null>(null)
 
-  // ✅ CHECK LOGIN KHI LOAD HEADER
+ useEffect(() => {
+  const syncAvatar = () => {
+    const storedAvatar = localStorage.getItem("avatar")
+    setAvatar(storedAvatar)
+  }
+
+  syncAvatar()
+
+  window.addEventListener("avatar-updated", syncAvatar)
+
+  return () => {
+    window.removeEventListener("avatar-updated", syncAvatar)
+  }
+}, [])
+
+
   useEffect(() => {
     setIsLoggedIn(checkLoggedIn())
   }, [])
 
   const handleLogout = () => {
     logout()
+    localStorage.removeItem("avatar")
+    setAvatar(null)
     setIsLoggedIn(false)
     setIsProfileOpen(false)
     toast.success("👋 Đã đăng xuất")
@@ -39,7 +57,7 @@ export default function Header() {
             </div>
             <div className="hidden sm:block">
               <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Natural Lip Balm
+                Glowpurea
               </h1>
               <p className="text-xs text-muted-foreground">Tự nhiên & Sạch sẽ</p>
             </div>
@@ -90,11 +108,18 @@ export default function Header() {
             <div className="relative">
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+                className="flex items-center justify-center w-10 h-10 rounded-full overflow-hidden bg-primary/10 hover:bg-primary/20 transition-colors"
               >
-                <User className="w-5 h-5 text-primary" />
+                {avatar ? (
+                  <img
+                    src={`https://localhost:63731${avatar}`}
+                    alt="avatar"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-5 h-5 text-primary" />
+                )}
               </button>
-
               {/* Profile Dropdown */}
               {isProfileOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-border py-2 z-50">

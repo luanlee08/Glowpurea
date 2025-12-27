@@ -14,7 +14,7 @@ export default function Footer() {
               <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-bold">
                 🌿
               </div>
-              <h3 className="font-bold text-lg text-primary">Natural Lip Balm</h3>
+              <h3 className="font-bold text-lg text-primary">Glowpurea</h3>
             </div>
             <p className="text-sm text-foreground/70 mb-6">
               Son dưỡng tự làm từ nguyên liệu thiên nhiên 100% organic, không hóa chất.

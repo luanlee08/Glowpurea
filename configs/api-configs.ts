@@ -5,5 +5,7 @@ export const API_URL = {
     REGISTER: `${API_BASE}/api/auth/register`,
     VERIFY_OTP: `${API_BASE}/api/auth/verify-otp`,
     LOGIN: `${API_BASE}/api/auth/login`,
+    ME: `${API_BASE}/api/auth/me`,          // ✅ THÊM
+    UPLOAD_AVATAR: `${API_BASE}/api/auth/avatar`, // ✅ THÊM
   },
 };

@@ -1,27 +1,43 @@
 "use client"
 
 import type React from "react"
-
+import { getProfile, uploadAvatar } from "@/services/profile.service"
 import { useState } from "react"
 import Header from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { User, Mail, Phone, MapPin, Edit2, Save, X, Heart, ShoppingBag, Settings } from "lucide-react"
+import { useEffect, useRef } from "react"
 
 export default function Profile() {
   const [isEditing, setIsEditing] = useState(false)
   const [activeTab, setActiveTab] = useState("profile")
-  const [profileData, setProfileData] = useState({
-    fullName: "Nguyễn Văn A",
-    email: "nguyenvana@email.com",
-    phone: "0123456789",
-    address: "123 Đường ABC, Quận 1, TP.HCM",
-    city: "TP.HCM",
-    zipCode: "70000",
-  })
+  const [profileData, setProfileData] = useState<any>(null)
+  const [editData, setEditData] = useState<any>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const [uploading, setUploading] = useState(false)
 
-  const [editData, setEditData] = useState(profileData)
+const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0]
+  if (!file) return
+
+  try {
+    setUploading(true)
+    const res = await uploadAvatar(file) 
+    localStorage.setItem("avatar", res.image)
+    window.dispatchEvent(new Event("avatar-updated"))
+    setProfileData((prev: any) => ({
+      ...prev,
+      image: res.image,
+    }))
+  } catch (err) {
+    console.error("Upload avatar thất bại", err)
+  } finally {
+    setUploading(false)
+  }
+}
+
 
   const handleEdit = () => {
     setIsEditing(true)
@@ -39,8 +55,31 @@ export default function Profile() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setEditData((prev) => ({ ...prev, [name]: value }))
+    setEditData((prev: any) => ({ ...prev, [name]: value }))
+
   }
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const data = await getProfile()
+        const mapped = {
+          fullName: data.accountName,
+          email: data.email,
+          phone: data.phoneNumber ?? "",
+          image: data.image,
+          address: "",
+          city: "",
+          zipCode: "",
+        }
+        setProfileData(mapped)
+        setEditData(mapped)
+      } catch (err) {
+        console.error("Lỗi lấy profile", err)
+      }
+    }
+
+    fetchProfile()
+  }, [])
 
   const orders = [
     {
@@ -80,7 +119,14 @@ export default function Profile() {
       image: "/rose-lip-balm-natural.jpg",
     },
   ]
-
+  if (!profileData || !editData) {
+    return (
+      <main className="min-h-screen bg-background">
+        <Header />
+        <p className="text-center mt-20">Đang tải thông tin...</p>
+      </main>
+    )
+  }
   return (
     <main className="min-h-screen bg-background">
       <Header />
@@ -89,9 +135,36 @@ export default function Profile() {
         {/* Profile Header */}
         <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8 mb-8">
           <div className="flex items-center gap-6">
-            <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center text-white text-4xl shadow-lg">
-              <User className="w-12 h-12" />
+            <div
+              className="relative w-24 h-24 rounded-full overflow-hidden cursor-pointer group"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {profileData.image ? (
+                <img
+                  src={`https://localhost:63731${profileData.image}`}
+                  alt="avatar"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-primary flex items-center justify-center text-white">
+                  <User className="w-12 h-12" />
+                </div>
+              )}
+
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                <Edit2 className="text-white w-6 h-6" />
+              </div>
             </div>
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              hidden
+              onChange={handleAvatarChange}
+            />
+
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-foreground mb-2">{profileData.fullName}</h1>
               <p className="text-foreground/70">{profileData.email}</p>
@@ -109,43 +182,39 @@ export default function Profile() {
         <div className="flex gap-4 mb-8 border-b border-border">
           <button
             onClick={() => setActiveTab("profile")}
-            className={`px-4 py-3 font-semibold border-b-2 transition-colors ${
-              activeTab === "profile"
-                ? "border-primary text-primary"
-                : "border-transparent text-foreground/60 hover:text-foreground"
-            }`}
+            className={`px-4 py-3 font-semibold border-b-2 transition-colors ${activeTab === "profile"
+              ? "border-primary text-primary"
+              : "border-transparent text-foreground/60 hover:text-foreground"
+              }`}
           >
             Thông tin cá nhân
           </button>
           <button
             onClick={() => setActiveTab("orders")}
-            className={`px-4 py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 ${
-              activeTab === "orders"
-                ? "border-primary text-primary"
-                : "border-transparent text-foreground/60 hover:text-foreground"
-            }`}
+            className={`px-4 py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 ${activeTab === "orders"
+              ? "border-primary text-primary"
+              : "border-transparent text-foreground/60 hover:text-foreground"
+              }`}
           >
             <ShoppingBag className="w-4 h-4" />
             Đơn hàng
           </button>
           <button
             onClick={() => setActiveTab("wishlist")}
-            className={`px-4 py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 ${
-              activeTab === "wishlist"
-                ? "border-primary text-primary"
-                : "border-transparent text-foreground/60 hover:text-foreground"
-            }`}
+            className={`px-4 py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 ${activeTab === "wishlist"
+              ? "border-primary text-primary"
+              : "border-transparent text-foreground/60 hover:text-foreground"
+              }`}
           >
             <Heart className="w-4 h-4" />
             Yêu thích
           </button>
           <button
             onClick={() => setActiveTab("settings")}
-            className={`px-4 py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 ${
-              activeTab === "settings"
-                ? "border-primary text-primary"
-                : "border-transparent text-foreground/60 hover:text-foreground"
-            }`}
+            className={`px-4 py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 ${activeTab === "settings"
+              ? "border-primary text-primary"
+              : "border-transparent text-foreground/60 hover:text-foreground"
+              }`}
           >
             <Settings className="w-4 h-4" />
             Cài đặt
@@ -289,7 +358,7 @@ export default function Profile() {
 
         {/* Orders Tab */}
         {activeTab === "orders" && (
-          <div className="space-y-4"> 
+          <div className="space-y-4">
             {orders.map((order) => (
               <Card key={order.id} className="border-0 shadow-lg">
                 <CardContent className="p-6">
@@ -301,9 +370,8 @@ export default function Profile() {
                     <div className="text-right">
                       <p className="font-semibold text-foreground">{order.total}</p>
                       <span
-                        className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                          order.status === "Đã giao" ? "bg-primary/10 text-primary" : "bg-accent/10 text-accent"
-                        }`}
+                        className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${order.status === "Đã giao" ? "bg-primary/10 text-primary" : "bg-accent/10 text-accent"
+                          }`}
                       >
                         {order.status}
                       </span>
