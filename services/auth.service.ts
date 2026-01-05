@@ -1,4 +1,4 @@
-import { API_URL } from "@/configs/api-configs";
+import { API_ENDPOINTS } from "@/configs/api-configs";
 
 export interface RegisterPayload {
   accountName: string;
@@ -27,7 +27,7 @@ export function logout() {
 
 
 export async function register(payload: RegisterPayload) {
-  const res = await fetch(API_URL.AUTH.REGISTER, {
+  const res = await fetch(API_ENDPOINTS.AUTH.REGISTER, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -51,7 +51,7 @@ export async function verifyOtp(payload: {
   email: string;
   otpCode: string;
 }) {
-  const res = await fetch(API_URL.AUTH.VERIFY_OTP, {
+  const res = await fetch(API_ENDPOINTS.AUTH.VERIFY_OTP, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -66,7 +66,7 @@ export async function verifyOtp(payload: {
   return text;
 }
 export async function login(payload: LoginPayload) {
-  const res = await fetch(API_URL.AUTH.LOGIN, {
+  const res = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
