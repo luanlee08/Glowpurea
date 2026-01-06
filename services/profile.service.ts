@@ -1,5 +1,5 @@
 import axios from "axios"
-import { API_URL } from "@/configs/api-configs";
+import { API_BASE } from "@/configs/api-configs";
 
 const getToken = () => {
   if (typeof window === "undefined") return null
@@ -13,7 +13,7 @@ export const getProfile = async () => {
     throw new Error("Chưa đăng nhập (missing token)")
   }
 
-  const res = await axios.get(API_URL.AUTH.ME, {
+  const res = await axios.get(API_BASE.AUTH.ME, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -25,7 +25,7 @@ export const getProfile = async () => {
 export const uploadAvatar = async (file: File) => {
   const formData = new FormData()
   formData.append("image", file) 
-  const res = await axios.post(API_URL.AUTH.UPLOAD_AVATAR, formData, {
+  const res = await axios.post(API_BASE.AUTH.UPLOAD_AVATAR, formData, {
     headers: {
       Authorization: `Bearer ${getToken()}`,
       "Content-Type": "multipart/form-data",
