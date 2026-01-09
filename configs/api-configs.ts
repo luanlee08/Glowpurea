@@ -15,7 +15,8 @@ export const API_ENDPOINTS = {
   BLOG_RECENT: `${API_BASE}/api/blogs/recent`,
   BLOG_DETAIL: (id: number) => `${API_BASE}/api/blogs/${id}`,
 
-  USER_PRODUCTS: `${API_BASE}/api/products/user`,              // GET (paging)
-  USER_PRODUCT_DETAIL: (id: number) =>
-    `${API_BASE}/api/products/${id}`,  
+  USER_PRODUCTS: `${API_BASE}/api/user/products`,   // ✅ đúng
+USER_PRODUCT_DETAIL: (id: number) =>
+  `${API_BASE}/api/public/products/${id}`,        // ✅ đúng
+
 };

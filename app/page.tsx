@@ -7,6 +7,7 @@ import FeatureSection from "@/components/feature-section"
 import ProductCard from "@/components/product-card"
 import { Button } from "@/components/ui/button"
 import { getUserProducts } from "@/services/product.service"
+import { useSearchParams } from "next/navigation"
 
 /* ================= TYPES ================= */
 
@@ -28,33 +29,59 @@ export default function HomePage() {
 
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
-  const pageSize = 8
+  const pageSize = 9
+  const [searchInput, setSearchInput] = useState("")
+  const [keyword, setKeyword] = useState("")
+  const searchParams = useSearchParams()
+  const keywordFromUrl = searchParams.get("keyword") || ""
 
   /* ================= LOAD PRODUCTS ================= */
 
-  const loadProducts = async (pageNumber = 1) => {
+  const loadProducts = async (pageNumber = 1, kw = keyword) => {
     try {
       setLoading(true)
       setError(null)
 
-      const res = await getUserProducts(pageNumber, pageSize)
+      const res = await getUserProducts(pageNumber, pageSize, kw)
 
       setProducts(res.data)
       setTotal(res.total)
       setPage(res.page)
-    } catch (err) {
-      console.error(err)
+    } catch {
       setError("Không thể tải sản phẩm")
     } finally {
       setLoading(false)
     }
   }
 
+
+
   useEffect(() => {
-    loadProducts(1)
-  }, [])
+    setKeyword(keywordFromUrl)
+    loadProducts(1, keywordFromUrl)
+  }, [keywordFromUrl])
 
   const totalPages = Math.ceil(total / pageSize)
+
+  const getPageNumbers = () => {
+    const maxVisible = 5
+    const pages: number[] = []
+
+    let start = Math.max(1, page - Math.floor(maxVisible / 2))
+    let end = start + maxVisible - 1
+
+    if (end > totalPages) {
+      end = totalPages
+      start = Math.max(1, end - maxVisible + 1)
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i)
+    }
+
+    return pages
+  }
+
 
   /* ================= RENDER ================= */
 
@@ -104,9 +131,20 @@ export default function HomePage() {
             <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
               Sản Phẩm Nổi Bật
             </h2>
-            <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
+            <p className="
+                mx-auto
+                mt-4
+                max-w-3xl
+                text-center
+                text-xl
+                leading-relaxed
+                text-foreground/70
+              ">
               Khám phá các dòng son dưỡng môi từ thiên nhiên
             </p>
+
+
+
           </div>
 
           {/* ===== LOADING ===== */}
@@ -125,7 +163,8 @@ export default function HomePage() {
 
           {/* ===== PRODUCT GRID ===== */}
           {!loading && !error && (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+
               {products.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -143,13 +182,13 @@ export default function HomePage() {
           {/* ===== PAGINATION ===== */}
           {totalPages > 1 && (
             <div className="mt-12 flex items-center justify-center gap-4">
-               <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page === 1}
-                  onClick={() => loadProducts(page - 1)}
-                  className="rounded-full px-5"
-                >
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page === 1}
+                onClick={() => loadProducts(page - 1, keyword)}
+                className="rounded-full px-5"
+              >
                 ← Trang trước
               </Button>
 
@@ -158,12 +197,12 @@ export default function HomePage() {
               </span>
 
               <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page === totalPages}
-                  onClick={() => loadProducts(page + 1)}
-                  className="rounded-full px-5"
-                >
+                variant="outline"
+                size="sm"
+                disabled={page === totalPages}
+                onClick={() => loadProducts(page + 1, keyword)}
+                className="rounded-full px-5"
+              >
                 Trang sau →
               </Button>
             </div>

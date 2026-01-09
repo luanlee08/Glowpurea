@@ -8,6 +8,8 @@ import { Menu, X, Search, User, LogOut, ShoppingCart } from "lucide-react"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
 import { isLoggedIn as checkLoggedIn, logout } from "@/services/auth.service"
+import { useSearchParams } from "next/navigation"
+import { startTransition } from "react"
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
@@ -15,21 +17,37 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const router = useRouter()
   const [avatar, setAvatar] = useState<string | null>(null)
+  const [searchText, setSearchText] = useState("")
+  const searchParams = useSearchParams()
+  const keywordFromUrl = searchParams.get("keyword") || ""
 
- useEffect(() => {
-  const syncAvatar = () => {
-    const storedAvatar = localStorage.getItem("avatar")
-    setAvatar(storedAvatar)
+  const handleSearch = () => {
+    if (!searchText.trim()) return
+
+    startTransition(() => {
+      router.push(`/?keyword=${encodeURIComponent(searchText.trim())}`)
+    })
   }
 
-  syncAvatar()
 
-  window.addEventListener("avatar-updated", syncAvatar)
+  useEffect(() => {
+    setSearchText(keywordFromUrl)
+  }, [keywordFromUrl])
 
-  return () => {
-    window.removeEventListener("avatar-updated", syncAvatar)
-  }
-}, [])
+  useEffect(() => {
+    const syncAvatar = () => {
+      const storedAvatar = localStorage.getItem("avatar")
+      setAvatar(storedAvatar)
+    }
+
+    syncAvatar()
+
+    window.addEventListener("avatar-updated", syncAvatar)
+
+    return () => {
+      window.removeEventListener("avatar-updated", syncAvatar)
+    }
+  }, [])
 
 
   useEffect(() => {
@@ -89,9 +107,21 @@ export default function Header() {
               <Input
                 type="text"
                 placeholder="Tìm kiếm sản phẩm..."
-                className="pl-10 pr-4 py-2 rounded-full bg-muted border-0 focus:ring-2 focus:ring-primary w-48"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault()   // ⭐ CHẶN reload
+                    handleSearch()
+                  }
+                }}
+                className="pl-10 pr-4 py-2 rounded-full bg-muted border-0"
               />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground cursor-pointer"
+                onClick={handleSearch}
+              />
             </div>
 
             <Link
@@ -189,9 +219,17 @@ export default function Header() {
               <Input
                 type="text"
                 placeholder="Tìm kiếm sản phẩm..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSearch()
+                }}
                 className="w-full pl-10 pr-4 py-2 rounded-full bg-muted border-0"
               />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground cursor-pointer"
+                onClick={handleSearch}
+              />
             </div>
             <nav className="flex flex-col gap-2">
               <Link href="/" className="px-4 py-2 text-foreground hover:bg-primary/10 rounded-lg transition-colors">

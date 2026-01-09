@@ -1,37 +1,41 @@
-import axios from "axios"
-import { API_BASE } from "@/configs/api-configs";
+import axios from "axios";
+import { API_ENDPOINTS } from "@/configs/api-configs";
 
 const getToken = () => {
-  if (typeof window === "undefined") return null
-  return localStorage.getItem("access_token")
-}
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("access_token");
+};
 
 export const getProfile = async () => {
-  const token = getToken()
+  const token = getToken();
 
   if (!token) {
-    throw new Error("Chưa đăng nhập (missing token)")
+    throw new Error("Chưa đăng nhập (missing token)");
   }
 
-  const res = await axios.get(API_BASE.AUTH.ME, {
+  const res = await axios.get(API_ENDPOINTS.AUTH.ME, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-  })
+  });
 
-  return res.data
-}
+  return res.data;
+};
 
 export const uploadAvatar = async (file: File) => {
-  const formData = new FormData()
-  formData.append("image", file) 
-  const res = await axios.post(API_BASE.AUTH.UPLOAD_AVATAR, formData, {
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-      "Content-Type": "multipart/form-data",
-    },
-  })
+  const formData = new FormData();
+  formData.append("image", file);
 
-  return res.data
-}
+  const res = await axios.post(
+    API_ENDPOINTS.AUTH.UPLOAD_AVATAR,
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
 
+  return res.data;
+};
