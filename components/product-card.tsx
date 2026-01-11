@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Heart } from "lucide-react"
+import Link from "next/link"
 
 /* ================= TYPES ================= */
 
@@ -41,18 +42,36 @@ export default function ProductCard({
         : "/placeholder.svg"
 
   return (
-    <a href={`/product/${id}`} className="block">
-      <Card className="group overflow-hidden border-0 bg-white transition-all duration-300 hover:shadow-2xl">
+    <Link href={`/product/${id}`} className="block">
+
+      <Card className="
+    group bg-white
+    border-[3px] border-border
+    rounded-[24px]
+    p-2
+    transition-all duration-300
+    hover:shadow-xl hover:border-primary/40
+  ">
+
         {/* IMAGE */}
-        <div className="relative aspect-square overflow-hidden bg-muted">
+        <div className="
+    relative aspect-[4/3]
+    rounded-[18px]
+    overflow-hidden
+    bg-muted
+  ">
           <img
             src={imageUrl}
             alt={name}
             onError={(e) => {
               ; (e.currentTarget as HTMLImageElement).src = "/placeholder.svg"
             }}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-          />
+            className="
+  h-full w-full
+  object-cover
+  transition-transform duration-300
+  group-hover:scale-[1.04]
+"/>
 
           {/* Overlay */}
           <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
@@ -68,7 +87,10 @@ export default function ProductCard({
 
         {/* HEADER */}
         <CardHeader>
-          <CardTitle className="text-xl text-primary">{name}</CardTitle>
+          <CardTitle className="text-xl text-primary">
+            {name.length > 25 ? name.slice(0, 25) + "..." : name}
+          </CardTitle>
+
           {description && (
             <CardDescription className="text-foreground/70">
               {description}
@@ -87,7 +109,7 @@ export default function ProductCard({
             </div>
           )}
 
-          <div className="flex items-center justify-between border-t border-border pt-4">
+          <div className="flex items-center justify-between border-t border-border pt-3">
             <span className="text-2xl font-bold text-secondary">
               {price}
             </span>
@@ -97,6 +119,6 @@ export default function ProductCard({
           </div>
         </CardContent>
       </Card>
-    </a>
+    </Link>
   )
 }
