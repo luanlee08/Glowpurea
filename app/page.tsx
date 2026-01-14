@@ -32,8 +32,8 @@ export default function HomePage() {
   const pageSize = 9
   const [searchInput, setSearchInput] = useState("")
   const [keyword, setKeyword] = useState("")
-  const searchParams = useSearchParams()
-  const keywordFromUrl = searchParams.get("keyword") || ""
+  // const searchParams = useSearchParams()
+  // const keywordFromUrl = searchParams.get("keyword") || ""
 
   /* ================= LOAD PRODUCTS ================= */
 
@@ -54,12 +54,15 @@ export default function HomePage() {
     }
   }
 
-
-
   useEffect(() => {
-    setKeyword(keywordFromUrl)
-    loadProducts(1, keywordFromUrl)
-  }, [keywordFromUrl])
+    loadProducts(1, keyword)
+  }, [keyword])
+
+
+  // useEffect(() => {
+  //   setKeyword(keywordFromUrl)
+  //   loadProducts(1, keywordFromUrl)
+  // }, [keywordFromUrl])
 
   const totalPages = Math.ceil(total / pageSize)
 
@@ -87,7 +90,8 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <Header />
+      <Header onSearch={setKeyword} />
+
 
       {/* ================= HERO ================= */}
       <section className="relative bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 py-20 md:py-32">
