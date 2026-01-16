@@ -95,7 +95,7 @@ export default function BlogPage() {
   /* ================= RENDER ================= */
   return (
     <main className="bg-[#fafafa] min-h-screen">
-      <Header />
+    <Header onSearch={setKeyword} />
 
       <section className="max-w-7xl mx-auto px-4 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
