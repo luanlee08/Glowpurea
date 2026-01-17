@@ -199,26 +199,7 @@ const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
             <ShoppingBag className="w-4 h-4" />
             Đơn hàng
           </button>
-          <button
-            onClick={() => setActiveTab("wishlist")}
-            className={`px-4 py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 ${activeTab === "wishlist"
-              ? "border-primary text-primary"
-              : "border-transparent text-foreground/60 hover:text-foreground"
-              }`}
-          >
-            <Heart className="w-4 h-4" />
-            Yêu thích
-          </button>
-          <button
-            onClick={() => setActiveTab("settings")}
-            className={`px-4 py-3 font-semibold border-b-2 transition-colors flex items-center gap-2 ${activeTab === "settings"
-              ? "border-primary text-primary"
-              : "border-transparent text-foreground/60 hover:text-foreground"
-              }`}
-          >
-            <Settings className="w-4 h-4" />
-            Cài đặt
-          </button>
+       
         </div>
 
         {/* Profile Tab */}

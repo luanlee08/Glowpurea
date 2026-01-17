@@ -2,11 +2,9 @@ import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Heart } from "lucide-react"
 import Link from "next/link"
 
 /* ================= TYPES ================= */
@@ -20,6 +18,14 @@ interface ProductCardProps {
   ingredients?: string
 }
 
+/* ================= UTILS ================= */
+
+// ❗ Loại bỏ HTML tag để tránh tràn layout
+function stripHtml(html?: string) {
+  if (!html) return ""
+  return html.replace(/<[^>]+>/g, "")
+}
+
 /* ================= COMPONENT ================= */
 
 export default function ProductCard({
@@ -31,89 +37,84 @@ export default function ProductCard({
   ingredients,
 }: ProductCardProps) {
   const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "https://localhost:63731"
+    process.env.NEXT_PUBLIC_API_URL || "https://localhost:63731"
 
-  // ✅ Resolve image URL an toàn
   const imageUrl =
     image && image.startsWith("http")
       ? image
       : image
-        ? `${API_BASE}${image}`
-        : "/placeholder.svg"
+      ? `${API_BASE}${image}`
+      : "/placeholder.svg"
 
   return (
-    <Link href={`/product/${id}`} className="block">
-
-      <Card className="
-    group bg-white
-    border-[3px] border-border
-    rounded-[24px]
-    p-2
-    transition-all duration-300
-    hover:shadow-xl hover:border-primary/40
-  ">
-
+    <Link href={`/product/${id}`} className="block h-full">
+      <Card
+        className="
+          group bg-white
+          border border-border
+          rounded-2xl
+          p-3
+          h-full
+          transition-all
+          hover:shadow-lg
+        "
+      >
         {/* IMAGE */}
-        <div className="
-    relative aspect-[4/3]
-    rounded-[18px]
-    overflow-hidden
-    bg-muted
-  ">
+        <div
+          className="
+            relative aspect-[4/3]
+            rounded-xl
+            overflow-hidden
+            bg-muted
+          "
+        >
           <img
             src={imageUrl}
             alt={name}
             onError={(e) => {
-              ; (e.currentTarget as HTMLImageElement).src = "/placeholder.svg"
+              ;(e.currentTarget as HTMLImageElement).src =
+                "/placeholder.svg"
             }}
             className="
-  h-full w-full
-  object-cover
-  transition-transform duration-300
-  group-hover:scale-[1.04]
-"/>
-
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
-
-          {/* Wishlist */}
-          <button
-            type="button"
-            className="absolute right-4 top-4 flex h-10 w-10 translate-y-2 items-center justify-center rounded-full bg-white shadow-lg opacity-0 transition-all hover:bg-primary hover:text-white group-hover:translate-y-0 group-hover:opacity-100"
-          >
-            <Heart className="h-5 w-5" />
-          </button>
+              h-full w-full
+              object-cover
+              transition-transform duration-300
+              group-hover:scale-[1.03]
+            "
+          />
         </div>
 
         {/* HEADER */}
-        <CardHeader>
-          <CardTitle className="text-xl text-primary">
-            {name.length > 25 ? name.slice(0, 25) + "..." : name}
+        <CardHeader className="px-1 pt-4 pb-2">
+          <CardTitle className="text-base font-semibold text-primary line-clamp-2">
+            {name}
           </CardTitle>
 
           {description && (
-            <CardDescription className="text-foreground/70">
-              {description}
-            </CardDescription>
+            <p className="text-sm text-foreground/70 line-clamp-3">
+              {stripHtml(description)}
+            </p>
           )}
         </CardHeader>
 
         {/* CONTENT */}
-        <CardContent className="space-y-4">
+        <CardContent className="px-1 pt-0 space-y-3">
           {ingredients && (
-            <div>
-              <p className="mb-2 text-sm font-semibold text-foreground/60">
-                Thành phần:
-              </p>
-              <p className="text-sm text-foreground/70">{ingredients}</p>
-            </div>
+            <p className="text-xs text-foreground/60 line-clamp-2">
+              <span className="font-medium">Thành phần:</span>{" "}
+              {ingredients}
+            </p>
           )}
 
-          <div className="flex items-center justify-between border-t border-border pt-3">
-            <span className="text-2xl font-bold text-secondary">
+          <div className="flex items-center justify-between border-t pt-3">
+            <span className="text-lg font-bold text-secondary">
               {price}
             </span>
-            <Button className="bg-primary font-semibold text-white hover:bg-primary/90">
+
+            <Button
+              size="sm"
+              className="bg-primary px-4 text-white hover:bg-primary/90"
+            >
               Thêm vào giỏ
             </Button>
           </div>
