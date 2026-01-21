@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react"
+import { Mail, Phone, MapPin } from "lucide-react"
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -21,7 +21,7 @@ export default function Footer() {
             <p className="text-sm text-muted-foreground mb-6">
               Son dưỡng tự làm từ nguyên liệu thiên nhiên 100% organic, không hóa chất.
             </p>
-
+            {/* 
             <div className="flex gap-3">
               {[Facebook, Instagram, Twitter].map((Icon, i) => (
                 <a
@@ -32,7 +32,7 @@ export default function Footer() {
                   <Icon className="w-5 h-5" />
                 </a>
               ))}
-            </div>
+            </div> */}
           </div>
 
           {/* Products */}
@@ -74,15 +74,16 @@ export default function Footer() {
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li className="flex gap-2">
                 <Mail className="w-4 h-4 text-primary mt-0.5" />
-                info@naturallipbalm.com
+                glowpurea0210@gmail.com
               </li>
               <li className="flex gap-2">
                 <Phone className="w-4 h-4 text-primary mt-0.5" />
-                +84 (123) 456-789
+                0344 305 954
               </li>
               <li className="flex gap-2">
                 <MapPin className="w-4 h-4 text-primary mt-0.5" />
-                123 Đường ABC, Quận 1, TP.HCM
+                600 Nguyễn Văn Cừ Nối Dài,
+                An Bình, Bình Thủy, Cần Thơ.
               </li>
             </ul>
           </div>

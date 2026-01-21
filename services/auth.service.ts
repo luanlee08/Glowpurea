@@ -71,9 +71,28 @@ export async function login(payload: LoginPayload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+
   const text = await res.text();
   if (!res.ok) {
     throw new Error(text || "Đăng nhập thất bại");
   }
-  return JSON.parse(text);  
+
+  const data = JSON.parse(text);
+
+  // ✅ LƯU TOKEN
+  localStorage.setItem("access_token", data.token);
+
+  // (optional) lưu user
+  localStorage.setItem(
+    "user",
+    JSON.stringify({
+      email: data.email,
+      role: data.role,
+    })
+  );
+
+  // ✅ báo cho Header biết
+  window.dispatchEvent(new Event("auth-changed"));
+
+  return data;
 }

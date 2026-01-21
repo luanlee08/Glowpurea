@@ -1,12 +1,16 @@
 "use client"
-
+import Header from "@/components/header"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Trash2, Plus, Minus, ShoppingCart } from "lucide-react"
+import {
+  Trash2,
+  Plus,
+  Minus,
+  ShoppingCart,
+} from "lucide-react"
 import { toast } from "react-hot-toast"
 import axios from "axios"
 import { useRouter } from "next/navigation"
@@ -18,7 +22,7 @@ const API_BASE =
 
 function getToken() {
   if (typeof window === "undefined") return null
-  return localStorage.getItem("token")
+  return localStorage.getItem("access_token")
 }
 
 /* ================= TYPES ================= */
@@ -32,7 +36,6 @@ interface CartItem {
   imageUrl: string
 }
 
-
 /* ================= PAGE ================= */
 
 export default function CartPage() {
@@ -40,7 +43,7 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true)
   const [promoCode, setPromoCode] = useState("")
   const router = useRouter()
-
+  const [keyword, setKeyword] = useState("");
   /* ===== LOAD CART ===== */
   useEffect(() => {
     const fetchCart = async () => {
@@ -57,9 +60,8 @@ export default function CartPage() {
             Authorization: `Bearer ${token}`,
           },
         })
-
         setCartItems(res.data)
-      } catch (err) {
+      } catch {
         toast.error("Không thể tải giỏ hàng")
       } finally {
         setLoading(false)
@@ -69,21 +71,20 @@ export default function CartPage() {
     fetchCart()
   }, [])
 
-  const totalItems = cartItems.reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  )
-
-
-  /* ===== UI HELPERS ===== */
+  /* ===== HELPERS ===== */
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
     }).format(price)
 
+  const totalItems = cartItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  )
+
   const subtotal = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (sum, item) => sum + item.price * item.quantity,
     0
   )
 
@@ -91,8 +92,11 @@ export default function CartPage() {
   const tax = Math.round(subtotal * 0.1)
   const total = subtotal + shipping + tax
 
-  /* ===== UI ONLY (chưa gọi API update/remove) ===== */
-  const updateQuantity = async (cartItemId: number, newQty: number) => {
+  /* ===== ACTIONS ===== */
+  const updateQuantity = async (
+    cartItemId: number,
+    newQty: number
+  ) => {
     if (newQty <= 0) {
       await removeItem(cartItemId)
       return
@@ -112,18 +116,17 @@ export default function CartPage() {
         }
       )
 
-      setCartItems(prev =>
-        prev.map(item =>
+      setCartItems((prev) =>
+        prev.map((item) =>
           item.cartItemId === cartItemId
             ? { ...item, quantity: newQty }
             : item
         )
       )
-    } catch (err) {
+    } catch {
       toast.error("Không thể cập nhật số lượng")
     }
   }
-
 
   const removeItem = async (cartItemId: number) => {
     const token = getToken()
@@ -139,16 +142,15 @@ export default function CartPage() {
         }
       )
 
-      setCartItems(prev =>
-        prev.filter(item => item.cartItemId !== cartItemId)
+      setCartItems((prev) =>
+        prev.filter((i) => i.cartItemId !== cartItemId)
       )
 
       toast.success("Đã xóa sản phẩm")
-    } catch (err) {
+    } catch {
       toast.error("Không thể xóa sản phẩm")
     }
   }
-
 
   /* ===== LOADING ===== */
   if (loading) {
@@ -162,26 +164,35 @@ export default function CartPage() {
   /* ================= RENDER ================= */
 
   return (
+    
     <main className="min-h-screen bg-background">
-
+         <Header onSearch={setKeyword} />
       <section className="max-w-7xl mx-auto px-4 py-12">
         {/* ===== HEADER ===== */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Giỏ Hàng</h1>
-          <p className="text-muted-foreground">
-            Bạn có {totalItems} sản phẩm trong giỏ
-          </p>
+        <div className="mb-10 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold mb-1">
+              Giỏ Hàng
+            </h1>
+            <p className="text-muted-foreground">
+              Bạn có{" "}
+              <span className="font-semibold">
+                {totalItems}
+              </span>{" "}
+              sản phẩm trong giỏ
+            </p>
+          </div>
         </div>
 
         {/* ===== EMPTY ===== */}
         {cartItems.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 text-center">
+          <div className="bg-white rounded-3xl p-12 text-center shadow">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-full mb-4">
               <ShoppingCart className="w-10 h-10 text-primary" />
             </div>
 
             <h2 className="text-2xl font-bold mb-2">
-              Giỏ hàng của bạn trống
+              Giỏ hàng trống
             </h2>
 
             <p className="text-muted-foreground mb-6">
@@ -197,15 +208,15 @@ export default function CartPage() {
         ) : (
           <div className="grid lg:grid-cols-3 gap-8">
             {/* ===== ITEMS ===== */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
+            <div className="lg:col-span-2 space-y-4">
+              <div className="bg-white rounded-3xl shadow overflow-hidden">
                 {cartItems.map((item) => (
                   <div
                     key={item.cartItemId}
-                    className="flex gap-4 p-6 border-b last:border-b-0"
+                    className="flex gap-5 p-6 border-b last:border-b-0 hover:bg-muted/30 transition"
                   >
                     {/* IMAGE */}
-                    <div className="w-24 h-24 bg-muted rounded-2xl overflow-hidden">
+                    <div className="w-24 h-24 rounded-xl overflow-hidden bg-muted flex-shrink-0">
                       <img
                         src={
                           item.imageUrl?.startsWith("http")
@@ -218,71 +229,80 @@ export default function CartPage() {
                     </div>
 
                     {/* INFO */}
-                    <div className="flex-1">
-                      <Link
-                        href={`/product/${item.productId}`}
-                        className="text-lg font-semibold hover:text-primary"
-                      >
-                        {item.productName}
-                      </Link>
+                    <div className="flex-1 flex flex-col justify-between">
+                      <div>
+                        <Link
+                          href={`/product/${item.productId}`}
+                          className="text-lg font-semibold hover:text-primary transition"
+                        >
+                          {item.productName}
+                        </Link>
 
-                      <p className="text-primary font-bold mt-1">
-                        {formatPrice(item.price)}
-                      </p>
-                    </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Đơn giá
+                        </p>
 
-                    {/* QUANTITY */}
-                    <div className="flex items-center gap-2 bg-muted rounded-lg p-2">
-                      <button
-                        onClick={() =>
-                          updateQuantity(
-                            item.cartItemId,
-                            item.quantity - 1
-                          )
-                        }
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
-
-                      <span className="w-8 text-center font-semibold">
-                        {item.quantity}
-                      </span>
-
-                      <button
-                        onClick={() =>
-                          updateQuantity(
-                            item.cartItemId,
-                            item.quantity + 1
-                          )
-                        }
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    {/* TOTAL */}
-                    <div className="text-right">
-                      <p className="font-bold">
-                        {formatPrice(
-                          item.price * item.quantity
-                        )}
-                      </p>
+                        <p className="text-primary font-bold">
+                          {formatPrice(item.price)}
+                        </p>
+                      </div>
 
                       <button
                         onClick={() =>
                           removeItem(item.cartItemId)
                         }
-                        className="text-red-500 text-sm flex items-center gap-1 mt-1"
+                        className="text-red-500 text-sm flex items-center gap-1 hover:underline w-fit"
                       >
                         <Trash2 className="w-4 h-4" />
-                        Xóa
+                        Xóa sản phẩm
                       </button>
+                    </div>
+
+                    {/* RIGHT */}
+                    <div className="flex flex-col items-end justify-between">
+                      {/* QUANTITY */}
+                      <div className="flex items-center gap-2 bg-muted rounded-full px-3 py-1">
+                        <button
+                          onClick={() =>
+                            updateQuantity(
+                              item.cartItemId,
+                              item.quantity - 1
+                            )
+                          }
+                          className="p-1 hover:text-primary transition"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+
+                        <span className="w-6 text-center font-semibold">
+                          {item.quantity}
+                        </span>
+
+                        <button
+                          onClick={() =>
+                            updateQuantity(
+                              item.cartItemId,
+                              item.quantity + 1
+                            )
+                          }
+                          className="p-1 hover:text-primary transition"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      {/* TOTAL */}
+                      <p className="font-bold text-lg mt-3">
+                        {formatPrice(
+                          item.price * item.quantity
+                        )}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <Link href="/" className="inline-block mt-6">
+              <Link href="/">
                 <Button variant="outline">
                   ← Tiếp tục mua sắm
                 </Button>
@@ -291,12 +311,11 @@ export default function CartPage() {
 
             {/* ===== SUMMARY ===== */}
             <div>
-              <div className="bg-white rounded-3xl shadow-lg p-6 sticky top-24">
+              <div className="bg-white rounded-3xl shadow-xl p-6 sticky top-24">
                 <h2 className="text-2xl font-bold mb-6">
                   Tóm Tắt Đơn Hàng
                 </h2>
 
-                {/* PROMO */}
                 <div className="mb-6">
                   <label className="text-sm font-semibold mb-2 block">
                     Mã khuyến mãi
@@ -317,45 +336,38 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                {/* BREAKDOWN */}
-                <div className="space-y-3 mb-6 pb-6 border-b">
+                <div className="space-y-3 mb-6 pb-6 border-b text-sm">
                   <div className="flex justify-between">
                     <span>Tạm tính</span>
-                    <span>
-                      {formatPrice(subtotal)}
-                    </span>
+                    <span>{formatPrice(subtotal)}</span>
                   </div>
 
                   <div className="flex justify-between">
                     <span>Vận chuyển</span>
-                    <span>
-                      {formatPrice(shipping)}
-                    </span>
+                    <span>{formatPrice(shipping)}</span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span>Thuế</span>
+                    <span>Thuế (10%)</span>
                     <span>{formatPrice(tax)}</span>
                   </div>
                 </div>
 
-                {/* TOTAL */}
-                <div className="flex justify-between mb-6">
+                <div className="flex justify-between items-center mb-6">
                   <span className="text-lg font-bold">
                     Tổng cộng
                   </span>
-                  <span className="text-2xl font-bold text-primary">
+                  <span className="text-3xl font-extrabold text-primary">
                     {formatPrice(total)}
                   </span>
                 </div>
 
                 <Button
-                  className="w-full bg-primary"
+                  className="w-full h-12 text-lg bg-primary hover:opacity-90 transition"
                   onClick={() => router.push("/order")}
                 >
                   Thanh toán
                 </Button>
-
               </div>
             </div>
           </div>

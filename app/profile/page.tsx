@@ -1,5 +1,5 @@
 "use client"
-
+import toast from "react-hot-toast"
 import type React from "react"
 import { getProfile, uploadAvatar, updateProfile } from "@/services/profile.service"
 import { useState } from "react"
@@ -27,6 +27,7 @@ export default function Profile() {
   const [addresses, setAddresses] = useState<AddressDto[]>([])
   const [loadingAddress, setLoadingAddress] = useState(true)
   const [isAddingAddress, setIsAddingAddress] = useState(false)
+  const [keyword, setKeyword] = useState("");
   type AddressForm = {
     address: string
     city: string
@@ -63,15 +64,13 @@ export default function Profile() {
   })
 
   const handleDeleteAddress = async (addr: any) => {
-    // ❌ Không cho xóa nếu chỉ còn 1 địa chỉ
     if (addresses.length === 1) {
-      alert("Bạn phải có ít nhất một địa chỉ")
+      toast.error("⚠️ Bạn phải có ít nhất một địa chỉ")
       return
     }
 
-    // ❌ Không cho xóa địa chỉ mặc định
     if (addr.isDefault) {
-      alert("Không thể xóa địa chỉ mặc định. Hãy đổi mặc định trước.")
+      toast.error("❌ Không thể xóa địa chỉ mặc định. Hãy đổi mặc định trước.")
       return
     }
 
@@ -226,7 +225,7 @@ export default function Profile() {
   }
   return (
     <main className="min-h-screen bg-background">
-
+      <Header onSearch={setKeyword} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Profile Header */}
