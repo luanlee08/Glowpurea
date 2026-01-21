@@ -6,6 +6,8 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import Link from "next/link"
+import { addToCart } from "@/services/cart.service"
+import { toast } from "react-hot-toast"
 
 /* ================= TYPES ================= */
 
@@ -43,8 +45,8 @@ export default function ProductCard({
     image && image.startsWith("http")
       ? image
       : image
-      ? `${API_BASE}${image}`
-      : "/placeholder.svg"
+        ? `${API_BASE}${image}`
+        : "/placeholder.svg"
 
   return (
     <Link href={`/product/${id}`} className="block h-full">
@@ -72,7 +74,7 @@ export default function ProductCard({
             src={imageUrl}
             alt={name}
             onError={(e) => {
-              ;(e.currentTarget as HTMLImageElement).src =
+              ; (e.currentTarget as HTMLImageElement).src =
                 "/placeholder.svg"
             }}
             className="
@@ -114,9 +116,21 @@ export default function ProductCard({
             <Button
               size="sm"
               className="bg-primary px-4 text-white hover:bg-primary/90"
+              onClick={async (e) => {
+                e.preventDefault()
+                e.stopPropagation()
+
+                try {
+                  await addToCart(id, 1)
+                  toast.success("Đã thêm vào giỏ hàng")
+                } catch (err: any) {
+                  toast.error("Vui lòng đăng nhập")
+                }
+              }}
             >
               Thêm vào giỏ
             </Button>
+
           </div>
         </CardContent>
       </Card>

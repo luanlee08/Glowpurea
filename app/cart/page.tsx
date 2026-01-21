@@ -1,223 +1,361 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Trash2, Plus, Minus, CarIcon as CartIcon } from "lucide-react"
+import { Trash2, Plus, Minus, ShoppingCart } from "lucide-react"
+import { toast } from "react-hot-toast"
+import axios from "axios"
+import { useRouter } from "next/navigation"
 
-interface CartItem {
-  id: number
-  name: string
-  price: number
-  quantity: number
-  image: string
+/* ================= CONFIG ================= */
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL || "https://localhost:63731"
+
+function getToken() {
+  if (typeof window === "undefined") return null
+  return localStorage.getItem("token")
 }
 
-export default function Cart() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: 1,
-      name: "Son Dưỡng Mật Ong",
-      price: 45000,
-      quantity: 2,
-      image: "/honey-lip-balm-natural.jpg",
-    },
-    {
-      id: 2,
-      name: "Son Dưỡng Dâu Tây",
-      price: 50000,
-      quantity: 1,
-      image: "/strawberry-lip-balm-natural.jpg",
-    },
-    {
-      id: 5,
-      name: "Son Dưỡng Hoa Hồng",
-      price: 52000,
-      quantity: 1,
-      image: "/rose-lip-balm-natural.jpg",
-    },
-  ])
+/* ================= TYPES ================= */
 
+interface CartItem {
+  cartItemId: number
+  productId: number
+  productName: string
+  price: number
+  quantity: number
+  imageUrl: string
+}
+
+
+/* ================= PAGE ================= */
+
+export default function CartPage() {
+  const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [promoCode, setPromoCode] = useState("")
+  const router = useRouter()
 
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      removeItem(id)
-      return
+  /* ===== LOAD CART ===== */
+  useEffect(() => {
+    const fetchCart = async () => {
+      const token = getToken()
+      if (!token) {
+        toast.error("Vui lòng đăng nhập để xem giỏ hàng")
+        setLoading(false)
+        return
+      }
+
+      try {
+        const res = await axios.get(`${API_BASE}/api/cart`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        setCartItems(res.data)
+      } catch (err) {
+        toast.error("Không thể tải giỏ hàng")
+      } finally {
+        setLoading(false)
+      }
     }
-    setCartItems(cartItems.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item)))
-  }
 
-  const removeItem = (id: number) => {
-    setCartItems(cartItems.filter((item) => item.id !== id))
-  }
+    fetchCart()
+  }, [])
 
-  const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
-  const shipping = subtotal > 500000 ? 0 : 30000
-  const tax = Math.round(subtotal * 0.1)
-  const total = subtotal + shipping + tax
+  const totalItems = cartItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  )
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
+
+  /* ===== UI HELPERS ===== */
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
     }).format(price)
+
+  const subtotal = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  )
+
+  const shipping = subtotal > 500_000 ? 0 : 30_000
+  const tax = Math.round(subtotal * 0.1)
+  const total = subtotal + shipping + tax
+
+  /* ===== UI ONLY (chưa gọi API update/remove) ===== */
+  const updateQuantity = async (cartItemId: number, newQty: number) => {
+    if (newQty <= 0) {
+      await removeItem(cartItemId)
+      return
+    }
+
+    const token = getToken()
+    if (!token) return
+
+    try {
+      await axios.patch(
+        `${API_BASE}/api/cart/items/${cartItemId}`,
+        { quantity: newQty },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      setCartItems(prev =>
+        prev.map(item =>
+          item.cartItemId === cartItemId
+            ? { ...item, quantity: newQty }
+            : item
+        )
+      )
+    } catch (err) {
+      toast.error("Không thể cập nhật số lượng")
+    }
   }
+
+
+  const removeItem = async (cartItemId: number) => {
+    const token = getToken()
+    if (!token) return
+
+    try {
+      await axios.delete(
+        `${API_BASE}/api/cart/items/${cartItemId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      setCartItems(prev =>
+        prev.filter(item => item.cartItemId !== cartItemId)
+      )
+
+      toast.success("Đã xóa sản phẩm")
+    } catch (err) {
+      toast.error("Không thể xóa sản phẩm")
+    }
+  }
+
+
+  /* ===== LOADING ===== */
+  if (loading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center text-muted-foreground">
+        Đang tải giỏ hàng...
+      </main>
+    )
+  }
+
+  /* ================= RENDER ================= */
 
   return (
     <main className="min-h-screen bg-background">
-      <Header />
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
+      <section className="max-w-7xl mx-auto px-4 py-12">
+        {/* ===== HEADER ===== */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Giỏ Hàng</h1>
-          <p className="text-foreground/60">Bạn có {cartItems.length} sản phẩm trong giỏ</p>
+          <h1 className="text-4xl font-bold mb-2">Giỏ Hàng</h1>
+          <p className="text-muted-foreground">
+            Bạn có {totalItems} sản phẩm trong giỏ
+          </p>
         </div>
 
+        {/* ===== EMPTY ===== */}
         {cartItems.length === 0 ? (
           <div className="bg-white rounded-3xl p-12 text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-full mb-4">
-              <CartIcon className="w-10 h-10 text-primary" />
+              <ShoppingCart className="w-10 h-10 text-primary" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Giỏ hàng của bạn trống</h2>
-            <p className="text-foreground/60 mb-6">Hãy thêm một số sản phẩm để tiếp tục mua sắm</p>
+
+            <h2 className="text-2xl font-bold mb-2">
+              Giỏ hàng của bạn trống
+            </h2>
+
+            <p className="text-muted-foreground mb-6">
+              Hãy thêm sản phẩm để tiếp tục mua sắm
+            </p>
+
             <Link href="/">
-              <Button className="bg-primary hover:bg-primary/90">Tiếp tục mua sắm</Button>
+              <Button className="bg-primary">
+                Tiếp tục mua sắm
+              </Button>
             </Link>
           </div>
         ) : (
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Cart Items */}
+            {/* ===== ITEMS ===== */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
                 {cartItems.map((item) => (
                   <div
-                    key={item.id}
-                    className="flex items-center gap-4 p-6 border-b border-border last:border-b-0 hover:bg-muted/50 transition-colors"
+                    key={item.cartItemId}
+                    className="flex gap-4 p-6 border-b last:border-b-0"
                   >
-                    {/* Product Image */}
-                    <div className="flex-shrink-0 w-24 h-24 bg-muted rounded-2xl overflow-hidden">
+                    {/* IMAGE */}
+                    <div className="w-24 h-24 bg-muted rounded-2xl overflow-hidden">
                       <img
-                        src={item.image || "/placeholder.svg"}
-                        alt={item.name}
+                        src={
+                          item.imageUrl?.startsWith("http")
+                            ? item.imageUrl
+                            : `${API_BASE}${item.imageUrl}`
+                        }
+                        alt={item.productName}
                         className="w-full h-full object-cover"
                       />
                     </div>
 
-                    {/* Product Info */}
-                    <div className="flex-grow">
+                    {/* INFO */}
+                    <div className="flex-1">
                       <Link
-                        href="/"
-                        className="text-lg font-semibold text-foreground hover:text-primary transition-colors"
+                        href={`/product/${item.productId}`}
+                        className="text-lg font-semibold hover:text-primary"
                       >
-                        {item.name}
+                        {item.productName}
                       </Link>
-                      <p className="text-primary font-bold mt-1">{formatPrice(item.price)}</p>
+
+                      <p className="text-primary font-bold mt-1">
+                        {formatPrice(item.price)}
+                      </p>
                     </div>
 
-                    {/* Quantity */}
+                    {/* QUANTITY */}
                     <div className="flex items-center gap-2 bg-muted rounded-lg p-2">
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="flex items-center justify-center w-8 h-8 rounded hover:bg-white transition-colors"
+                        onClick={() =>
+                          updateQuantity(
+                            item.cartItemId,
+                            item.quantity - 1
+                          )
+                        }
                       >
                         <Minus className="w-4 h-4" />
                       </button>
-                      <span className="w-8 text-center font-semibold">{item.quantity}</span>
+
+                      <span className="w-8 text-center font-semibold">
+                        {item.quantity}
+                      </span>
+
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="flex items-center justify-center w-8 h-8 rounded hover:bg-white transition-colors"
+                        onClick={() =>
+                          updateQuantity(
+                            item.cartItemId,
+                            item.quantity + 1
+                          )
+                        }
                       >
                         <Plus className="w-4 h-4" />
                       </button>
                     </div>
 
-                    {/* Total Price */}
+                    {/* TOTAL */}
                     <div className="text-right">
-                      <p className="text-lg font-bold text-foreground">{formatPrice(item.price * item.quantity)}</p>
+                      <p className="font-bold">
+                        {formatPrice(
+                          item.price * item.quantity
+                        )}
+                      </p>
+
                       <button
-                        onClick={() => removeItem(item.id)}
-                        className="text-destructive hover:text-destructive/80 mt-1 flex items-center gap-1 transition-colors"
+                        onClick={() =>
+                          removeItem(item.cartItemId)
+                        }
+                        className="text-red-500 text-sm flex items-center gap-1 mt-1"
                       >
                         <Trash2 className="w-4 h-4" />
-                        <span className="text-sm">Xóa</span>
+                        Xóa
                       </button>
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Continue Shopping */}
               <Link href="/" className="inline-block mt-6">
-                <Button
-                  variant="outline"
-                  className="bg-transparent border border-primary text-primary hover:bg-primary/10"
-                >
+                <Button variant="outline">
                   ← Tiếp tục mua sắm
                 </Button>
               </Link>
             </div>
 
-            {/* Order Summary */}
-            <div className="lg:col-span-1">
+            {/* ===== SUMMARY ===== */}
+            <div>
               <div className="bg-white rounded-3xl shadow-lg p-6 sticky top-24">
-                <h2 className="text-2xl font-bold text-foreground mb-6">Tóm Tắt Đơn Hàng</h2>
+                <h2 className="text-2xl font-bold mb-6">
+                  Tóm Tắt Đơn Hàng
+                </h2>
 
-                {/* Promo Code */}
+                {/* PROMO */}
                 <div className="mb-6">
-                  <label className="text-sm font-semibold text-foreground mb-2 block">Mã khuyến mãi</label>
+                  <label className="text-sm font-semibold mb-2 block">
+                    Mã khuyến mãi
+                  </label>
+
                   <div className="flex gap-2">
                     <Input
-                      type="text"
-                      placeholder="Nhập mã"
                       value={promoCode}
-                      onChange={(e) => setPromoCode(e.target.value)}
-                      className="flex-1 rounded-lg border border-border"
+                      onChange={(e) =>
+                        setPromoCode(e.target.value)
+                      }
+                      placeholder="Nhập mã"
                     />
-                    <Button variant="outline" className="bg-transparent border border-border">
+
+                    <Button variant="outline">
                       Áp dụng
                     </Button>
                   </div>
                 </div>
 
-                {/* Price Breakdown */}
-                <div className="space-y-3 mb-6 pb-6 border-b border-border">
+                {/* BREAKDOWN */}
+                <div className="space-y-3 mb-6 pb-6 border-b">
                   <div className="flex justify-between">
-                    <span className="text-foreground/70">Tạm tính</span>
-                    <span className="font-semibold text-foreground">{formatPrice(subtotal)}</span>
+                    <span>Tạm tính</span>
+                    <span>
+                      {formatPrice(subtotal)}
+                    </span>
                   </div>
+
                   <div className="flex justify-between">
-                    <span className="text-foreground/70">Vận chuyển</span>
-                    <span className="font-semibold text-foreground">{formatPrice(shipping)}</span>
+                    <span>Vận chuyển</span>
+                    <span>
+                      {formatPrice(shipping)}
+                    </span>
                   </div>
+
                   <div className="flex justify-between">
-                    <span className="text-foreground/70">Thuế</span>
-                    <span className="font-semibold text-foreground">{formatPrice(tax)}</span>
+                    <span>Thuế</span>
+                    <span>{formatPrice(tax)}</span>
                   </div>
                 </div>
 
-                {/* Total */}
-                <div className="mb-6">
-                  <div className="flex justify-between mb-2">
-                    <span className="text-lg font-bold text-foreground">Tổng cộng</span>
-                    <span className="text-2xl font-bold text-primary">{formatPrice(total)}</span>
-                  </div>
-                  {shipping === 0 && <p className="text-sm text-primary/70">Miễn phí vận chuyển</p>}
+                {/* TOTAL */}
+                <div className="flex justify-between mb-6">
+                  <span className="text-lg font-bold">
+                    Tổng cộng
+                  </span>
+                  <span className="text-2xl font-bold text-primary">
+                    {formatPrice(total)}
+                  </span>
                 </div>
 
-                {/* Checkout Button */}
-                <Button className="w-full bg-gradient-to-r from-primary to-secondary hover:shadow-lg text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105">
-                  Thanh Toán
+                <Button
+                  className="w-full bg-primary"
+                  onClick={() => router.push("/order")}
+                >
+                  Thanh toán
                 </Button>
 
-                {/* Security Info */}
-                <div className="mt-6 pt-6 border-t border-border">
-                  <p className="text-xs text-foreground/60 text-center">✓ Thanh toán an toàn với SSL encryption</p>
-                </div>
               </div>
             </div>
           </div>

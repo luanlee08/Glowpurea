@@ -26,6 +26,8 @@ import {
 } from "lucide-react"
 import axios from "axios"
 import { API_ENDPOINTS } from "@/configs/api-configs"
+import { addToCart } from "@/services/cart.service"
+import { toast } from "react-hot-toast"
 
 /* ================= CONFIG ================= */
 
@@ -179,10 +181,19 @@ export default function ProductPage() {
 
               <Button
                 className="w-full h-9 rounded-lg text-sm font-medium bg-green-600 hover:bg-green-700"
+                onClick={async () => {
+                  try {
+                    await addToCart(product.productId, 1)
+                    toast.success("Đã thêm vào giỏ hàng")
+                  } catch (err: any) {
+                    toast.error(err?.message || "Thêm giỏ hàng thất bại")
+                  }
+                }}
               >
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 Thêm vào giỏ hàng
               </Button>
+
 
               <p className="text-[11px] text-center text-muted-foreground">
                 Miễn phí đổi trả trong 7 ngày
