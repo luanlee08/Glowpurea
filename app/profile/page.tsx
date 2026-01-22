@@ -14,6 +14,37 @@ import { updateAddress } from "@/services/address.service"
 import { deleteAddress } from "@/services/address.service"
 import { addAddress } from "@/services/address.service"
 import type { AddressDto } from "@/services/address.service"
+import {
+  getMyOrders,
+  getOrderDetail,
+  OrderPreview,
+  OrderDetailDto
+} from "@/services/order.service"
+
+
+function mapOrderStatus(status: string) {
+  switch (status) {
+    case "Pending": return "Chờ xác nhận"
+    case "Confirmed": return "Đã xác nhận"
+    case "Shipped": return "Đang giao"
+    case "Delivered": return "Đã giao"
+    case "Cancelled": return "Đã hủy"
+    default: return status
+  }
+}
+
+function statusBadge(status: string) {
+  switch (status) {
+    case "Delivered":
+      return "px-3 py-1 rounded-full text-sm bg-green-100 text-green-700"
+    case "Shipped":
+      return "px-3 py-1 rounded-full text-sm bg-orange-100 text-orange-700"
+    case "Cancelled":
+      return "px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700"
+    default:
+      return "px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-700"
+  }
+}
 
 export default function Profile() {
   const [isEditingProfile, setIsEditingProfile] = useState(false)
@@ -28,6 +59,25 @@ export default function Profile() {
   const [loadingAddress, setLoadingAddress] = useState(true)
   const [isAddingAddress, setIsAddingAddress] = useState(false)
   const [keyword, setKeyword] = useState("");
+  const [openOrderId, setOpenOrderId] = useState<number | null>(null)
+  const [orderDetail, setOrderDetail] = useState<OrderDetailDto | null>(null)
+  const [loadingDetail, setLoadingDetail] = useState(false)
+  const handleViewOrderDetail = async (orderId: number) => {
+    setOpenOrderId(orderId)
+    setLoadingDetail(true)
+
+    try {
+      const data = await getOrderDetail(orderId)
+      setOrderDetail(data)
+    } catch (err) {
+      toast.error("Không tải được chi tiết đơn hàng")
+    } finally {
+      setLoadingDetail(false)
+    }
+  }
+
+  const [orders, setOrders] = useState<OrderPreview[]>([])
+  const [loadingOrders, setLoadingOrders] = useState(true)
   type AddressForm = {
     address: string
     city: string
@@ -176,30 +226,24 @@ export default function Profile() {
     loadAddress()
   }, [])
 
+  useEffect(() => {
+    if (activeTab !== "orders") return
 
-  const orders = [
-    {
-      id: "ORD001",
-      date: "2025-01-15",
-      total: "150.000đ",
-      status: "Đã giao",
-      items: 3,
-    },
-    {
-      id: "ORD002",
-      date: "2025-01-10",
-      total: "95.000đ",
-      status: "Đang giao",
-      items: 2,
-    },
-    {
-      id: "ORD003",
-      date: "2025-01-05",
-      total: "200.000đ",
-      status: "Đã giao",
-      items: 4,
-    },
-  ]
+    const loadOrders = async () => {
+      try {
+        const data = await getMyOrders()
+        setOrders(data) // ✅ GIỮ NGUYÊN
+      } catch (err) {
+        console.error("Lỗi lấy đơn hàng", err)
+      } finally {
+        setLoadingOrders(false)
+      }
+    }
+
+    loadOrders()
+  }, [activeTab])
+
+
 
   const wishlist = [
     {
@@ -217,6 +261,7 @@ export default function Profile() {
   ]
   if (!profileData || !editData) {
     return (
+      
       <main className="min-h-screen bg-background">
 
         <p className="text-center mt-20">Đang tải thông tin...</p>
@@ -224,6 +269,7 @@ export default function Profile() {
     )
   }
   return (
+  <>
     <main className="min-h-screen bg-background">
       <Header onSearch={setKeyword} />
 
@@ -666,30 +712,79 @@ export default function Profile() {
         {/* Orders Tab */}
         {activeTab === "orders" && (
           <div className="space-y-4">
-            {orders.map((order) => (
-              <Card key={order.id} className="border-0 shadow-lg">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold text-foreground">Đơn hàng {order.id}</p>
-                      <p className="text-sm text-foreground/60">{order.date}</p>
+            {orders.map((order) => {
+              const item = order.previewItem
+              const extraCount = order.totalItems - 1
+
+              return (
+                <Card key={order.orderId} className="border-0 shadow-lg">
+                  <CardContent className="p-6 space-y-4">
+
+                    {/* ===== HEADER ===== */}
+                    <div className="flex justify-between">
+                      <div>
+                        <p className="font-semibold">
+                          Đơn hàng ORD{order.orderId.toString().padStart(3, "0")}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(order.createdAt).toLocaleDateString("vi-VN")}
+                        </p>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="font-semibold">
+                          {order.totalAmount.toLocaleString()}đ
+                        </p>
+                        <span className={statusBadge(order.status)}>
+                          {mapOrderStatus(order.status)}
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-foreground">{order.total}</p>
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${order.status === "Đã giao" ? "bg-primary/10 text-primary" : "bg-accent/10 text-accent"
-                          }`}
+
+                    {/* ===== PRODUCT PREVIEW ===== */}
+                    {item && (
+                      <div className="flex gap-4 items-center border-t pt-4">
+                        <img
+                          src={`https://localhost:63731${item.imageUrl}`}
+                          className="w-16 h-16 rounded-lg object-cover border"
+                        />
+
+                        <div className="flex-1">
+                          <p className="font-medium line-clamp-1">
+                            {item.productName}
+                          </p>
+
+                          <p className="text-sm text-muted-foreground">
+                            x{item.quantity}
+                            {extraCount > 0 && ` · +${extraCount} sản phẩm khác`}
+                          </p>
+                        </div>
+
+                        <p className="font-semibold">
+                          {(item.unitPrice * item.quantity).toLocaleString()}đ
+                        </p>
+                      </div>
+                    )}
+
+                    {/* ===== FOOTER ===== */}
+                    <div className="flex justify-end">
+                      <Button
+                        variant="outline"
+                        onClick={() => handleViewOrderDetail(order.orderId)}
                       >
-                        {order.status}
-                      </span>
+                        Xem chi tiết
+                      </Button>
+
                     </div>
-                  </div>
-                  <p className="text-sm text-foreground/70 mt-2">{order.items} sản phẩm</p>
-                </CardContent>
-              </Card>
-            ))}
+
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         )}
+
+
 
         {/* Wishlist Tab */}
         {activeTab === "wishlist" && (
@@ -755,5 +850,73 @@ export default function Profile() {
         )}
       </div>
     </main>
+    {
+    openOrderId && (
+      <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+        <div className="bg-white w-full max-w-2xl rounded-xl shadow-lg p-6 relative">
+
+          {/* CLOSE */}
+          <button
+            onClick={() => {
+              setOpenOrderId(null)
+              setOrderDetail(null)
+            }}
+            className="absolute top-3 right-3 text-gray-500 hover:text-black"
+          >
+            ✕
+          </button>
+
+          {loadingDetail || !orderDetail ? (
+            <p className="text-center py-10">Đang tải...</p>
+          ) : (
+            <>
+              {/* HEADER */}
+              <div className="mb-4">
+                <h2 className="text-xl font-bold">
+                  Đơn hàng ORD{orderDetail.orderId.toString().padStart(3, "0")}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {new Date(orderDetail.createdAt).toLocaleString("vi-VN")}
+                </p>
+              </div>
+
+              {/* STATUS */}
+              <span className={statusBadge(orderDetail.status)}>
+                {mapOrderStatus(orderDetail.status)}
+              </span>
+
+              {/* ITEMS */}
+              <div className="mt-6 space-y-4">
+                {orderDetail.items.map(item => (
+                  <div
+                    key={item.productId}
+                    className="flex justify-between items-center border-b pb-2"
+                  >
+                    <div>
+                      <p className="font-medium">{item.productName}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {item.quantity} × {item.unitPrice.toLocaleString()}đ
+                      </p>
+                    </div>
+
+                    <p className="font-semibold">
+                      {item.total.toLocaleString()}đ
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* TOTAL */}
+              <div className="flex justify-between mt-6 text-lg font-bold">
+                <span>Tổng cộng</span>
+                <span>{orderDetail.totalAmount.toLocaleString()}đ</span>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
+</>
   )
 }
