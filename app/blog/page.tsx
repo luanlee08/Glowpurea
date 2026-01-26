@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Header from "@/components/Header";
+import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { getBlogCategories, BlogCategory } from "@/services/blog-category.service";
 import Link from "next/link";

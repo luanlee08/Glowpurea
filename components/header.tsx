@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import HeaderClient from "./HeaderClient"
+import HeaderClient from "./header-client"
 
 export default function Header(props: any) {
   return (

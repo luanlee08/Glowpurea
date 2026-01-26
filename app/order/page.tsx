@@ -8,7 +8,7 @@ import { getCart } from "@/services/cart.service"
 import type { AddressDto } from "@/services/address.service"
 import { useRouter } from "next/navigation"
 import { CheckCircle } from "lucide-react"
-import Header from "@/components/Header"
+import Header from "@/components/header"
 const API_BASE =
     process.env.NEXT_PUBLIC_API_URL!;
 

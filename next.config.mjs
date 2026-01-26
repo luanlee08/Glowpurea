@@ -1,8 +1,11 @@
+import path from "path"
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+
   images: {
     unoptimized: true,
   },
@@ -14,6 +17,14 @@ const nextConfig = {
         destination: "https://localhost:63731/api/:path*",
       },
     ]
+  },
+
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      "@": path.resolve(process.cwd()),
+    }
+    return config
   },
 }
 

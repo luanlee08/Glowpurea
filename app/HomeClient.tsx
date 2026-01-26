@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Header from "@/components/Header"
+import Header from "@/components/header"
 import Footer from "@/components/footer"
 import FeatureSection from "@/components/feature-section"
 import ProductCard from "@/components/product-card"
