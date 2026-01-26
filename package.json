@@ -2,22 +2,22 @@
   "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
-
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start"
   },
-
   "dependencies": {
     "next": "16.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "axios": "^1.13.2",
     "lucide-react": "^0.454.0",
-    "react-hot-toast": "^2.6.0"
+    "react-hot-toast": "^2.6.0",
+    "@radix-ui/react-slot": "^1.1.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1"
   },
-
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.9",
     "tailwindcss": "^4.1.9",
