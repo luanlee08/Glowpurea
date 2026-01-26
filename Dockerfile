@@ -1,14 +1,17 @@
 # =========================
 # 1. BUILD STAGE
 # =========================
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json ./
 
-# Install dependencies (CHUẨN cho CI/CD)
+# Ensure Corepack / pnpm is available (Next may call pnpm to fetch SWC)
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Install dependencies (CI/CD)
 RUN npm ci
 
 # Copy source code
@@ -21,7 +24,7 @@ RUN npm run build
 # =========================
 # 2. RUN STAGE
 # =========================
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
