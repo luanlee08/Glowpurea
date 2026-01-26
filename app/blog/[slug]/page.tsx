@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 
-import Header from "@/components/header";
+import Header from "@/components/Header";
 import Footer from "@/components/footer";
 import { Badge } from "@/components/ui/badge";
 

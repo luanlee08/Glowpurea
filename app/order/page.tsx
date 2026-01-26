@@ -8,9 +8,9 @@ import { getCart } from "@/services/cart.service"
 import type { AddressDto } from "@/services/address.service"
 import { useRouter } from "next/navigation"
 import { CheckCircle } from "lucide-react"
-import Header from "@/components/header"
+import Header from "@/components/Header"
 const API_BASE =
-    process.env.NEXT_PUBLIC_API_URL || "https://localhost:63731"
+    process.env.NEXT_PUBLIC_API_URL!;
 
 /* ================= TYPES ================= */
 

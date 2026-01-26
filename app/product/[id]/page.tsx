@@ -14,7 +14,7 @@ import {
 
 import { useParams, notFound } from "next/navigation"
 import { useEffect, useState } from "react"
-import Header from "@/components/header"
+import Header from "@/components/Header"
 import Footer from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import {
